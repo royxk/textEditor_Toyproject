@@ -1,113 +1,301 @@
-import Image from "next/image";
+"use client";
+import React, { useCallback, useMemo, useState } from "react";
+import { createEditor, Descendant, Text, Transforms, Editor } from "slate";
+import { withHistory } from "slate-history";
+import {
+  Slate,
+  Editable,
+  withReact,
+  RenderElementProps,
+  RenderLeafProps,
+  ReactEditor,
+} from "slate-react";
 
-export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:size-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+import Toolbar from "./components/Toolbar";
+
+// Define custom element types
+interface CustomElement {
+  type: string;
+  children: Descendant[];
+  [key: string]: any;
+}
+
+interface CustomLeaf {
+  text: string;
+  bold?: boolean;
+  italic?: boolean;
+  underline?: boolean;
+  strikethrough?: boolean;
+  superscript?: boolean;
+  subscript?: boolean;
+  color?: string;
+  bgColor?: string;
+  fontSize?: string;
+  fontFamily?: string;
+}
+
+const Element: React.FC<RenderElementProps> = ({
+  attributes,
+  children,
+  element,
+}) => {
+  switch (element.type) {
+    case "headingOne":
+      return <h1 {...attributes}>{children}</h1>;
+    case "headingTwo":
+      return <h2 {...attributes}>{children}</h2>;
+    case "headingThree":
+      return <h3 {...attributes}>{children}</h3>;
+    case "blockquote":
+      return <blockquote {...attributes}>{children}</blockquote>;
+    case "alignLeft":
+      return (
+        <div
+          style={{ textAlign: "left", listStylePosition: "inside" }}
+          {...attributes}
+        >
+          {children}
         </div>
-      </div>
+      );
+    case "alignCenter":
+      return (
+        <div
+          style={{ textAlign: "center", listStylePosition: "inside" }}
+          {...attributes}
+        >
+          {children}
+        </div>
+      );
+    case "alignRight":
+      return (
+        <div
+          style={{ textAlign: "right", listStylePosition: "inside" }}
+          {...attributes}
+        >
+          {children}
+        </div>
+      );
+    case "list-item":
+      return <li {...attributes}>{children}</li>;
+    case "orderedList":
+      return (
+        <ol type="1" {...attributes}>
+          {children}
+        </ol>
+      );
+    case "unorderedList":
+      return <ul {...attributes}>{children}</ul>;
+    // case "link":
+    //   return (
+    //     <Link {...(element as any)} {...attributes}>
+    //       {children}
+    //     </Link>
+    //   );
+    case "table":
+      return (
+        <table>
+          <tbody {...attributes}>{children}</tbody>
+        </table>
+      );
+    case "table-row":
+      return <tr {...attributes}>{children}</tr>;
+    case "table-cell":
+      return <td {...attributes}>{children}</td>;
+    // case "image":
+    //   return <Image {...(element as any)} {...attributes} />;
+    // case "video":
+    //   return <Video {...(element as any)} {...attributes} />;
+    default:
+      return <p {...attributes}>{children}</p>;
+  }
+};
 
-      <div className="relative z-[-1] flex place-items-center before:absolute before:h-[300px] before:w-full before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-full after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 sm:before:w-[480px] sm:after:w-[240px] before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
+const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
+  if (leaf.bold) {
+    children = <strong>{children}</strong>;
+  }
+  // if (leaf.code) {
+  //   children = <code>{children}</code>;
+  // }
+  if (leaf.italic) {
+    children = <em>{children}</em>;
+  }
+  if (leaf.strikethrough) {
+    children = (
+      <span style={{ textDecoration: "line-through" }}>{children}</span>
+    );
+  }
+  if (leaf.underline) {
+    children = <u>{children}</u>;
+  }
+  if (leaf.superscript) {
+    children = <sup>{children}</sup>;
+  }
+  if (leaf.subscript) {
+    children = <sub>{children}</sub>;
+  }
+  if (leaf.color) {
+    children = <span style={{ color: leaf.color }}>{children}</span>;
+  }
+  if (leaf.bgColor) {
+    children = (
+      <span style={{ backgroundColor: leaf.bgColor }}>{children}</span>
+    );
+  }
+  // if (leaf.fontSize) {
+  //   const size = sizeMap[leaf.fontSize];
+  //   children = <span style={{ fontSize: size }}>{children}</span>;
+  // }
+  // if (leaf.fontFamily) {
+  //   const family = fontFamilyMap[leaf.fontFamily];
+  //   children = <span style={{ fontFamily: family }}>{children}</span>;
+  // }
+  return <span {...attributes}>{children}</span>;
+};
+
+const serialize = (node: Descendant[]): string => {
+  return node.map((n) => serializeNode(n)).join("");
+};
+
+const serializeNode = (node: any): string => {
+  if (Text.isText(node)) {
+    let text = escapeHtml(node.text);
+    text = text.replace(/\n/g, "<br>");
+    if (node.bold) {
+      text = `<strong>${text}</strong>`;
+    }
+    if (node.italic) {
+      text = `<em>${text}</em>`;
+    }
+    if (node.underline) {
+      text = `<u>${text}</u>`;
+    }
+    if (node.strikethrough) {
+      text = `<del>${text}</del>`;
+    }
+    if (node.superscript) {
+      text = `<sup>${text}</sup>`;
+    }
+    if (node.subscript) {
+      text = `<sub>${text}</sub>`;
+    }
+    if (node.color) {
+      text = `<span style="color: ${node.color}">${text}</span>`;
+    }
+    if (node.bgColor) {
+      text = `<span style="background-color: ${node.bgColor}">${text}</span>`;
+    }
+    if (node.fontSize) {
+      text = `<span style="font-size: ${node.fontSize}">${text}</span>`;
+    }
+    if (node.fontFamily) {
+      text = `<span style="font-family: ${node.fontFamily}">${text}</span>`;
+    }
+    return text;
+  }
+
+  const children = node.children.map((n: any) => serializeNode(n)).join("");
+  switch (node.type) {
+    case "paragraph":
+      return `<p>${children}</p>`;
+    case "headingOne":
+      return `<h1>${children}</h1>`;
+    case "headingTwo":
+      return `<h2>${children}</h2>`;
+    case "headingThree":
+      return `<h3>${children}</h3>`;
+    case "blockquote":
+      return `<blockquote>${children}</blockquote>`;
+    case "orderedList":
+      return `<ol>${children}</ol>`;
+    case "unorderedList":
+      return `<ul>${children}</ul>`;
+    case "list-item":
+      return `<li>${children}</li>`;
+    case "table":
+      return `<table>${children}</table>`;
+    case "table-row":
+      return `<tr>${children}</tr>`;
+    case "table-cell":
+      return `<td>${children}</td>`;
+    default:
+      return `<div>${children}</div>`;
+  }
+};
+
+const escapeHtml = (str: string): string => {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
+const insertBreak = (editor: Editor) => {
+  const { selection } = editor;
+  if (selection) {
+    Transforms.insertText(editor, "\n");
+  }
+};
+
+const handleKeyDown = (
+  event: React.KeyboardEvent<HTMLDivElement>,
+  editor: Editor
+) => {
+  if (event.key === "Enter") {
+    if (event.shiftKey) {
+      event.preventDefault();
+      insertBreak(editor);
+    }
+  }
+};
+
+const SlateEditor: React.FC = () => {
+  const editor = useMemo(() => withHistory(withReact(createEditor())), []);
+
+  const [value, setValue] = useState<Descendant[]>([
+    {
+      type: "paragraph",
+      children: [{ text: "글을 작성해보세요:)." }],
+    },
+  ]);
+
+  const renderElement = useCallback(
+    (props: RenderElementProps) => <Element {...props} />,
+    []
+  );
+  const renderLeaf = useCallback(
+    (props: RenderLeafProps) => <Leaf {...props} />,
+    []
+  );
+
+  return (
+    <Slate
+      editor={editor}
+      value={value}
+      onChange={(newValue) => setValue(newValue)}
+    >
+      <Toolbar />
+      <input className="p-15"></input>
+      <div
+        className="editor-wrapper"
+        style={{ border: "1px solid #f3f3f3", padding: "0 10px" }}
+      >
+        <Editable
+          placeholder="글을 작성해보세요"
+          renderElement={renderElement}
+          renderLeaf={renderLeaf}
+          onKeyDown={(event) => handleKeyDown(event, editor)}
         />
       </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Docs{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Learn{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Templates{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-sm opacity-50">
-            Explore starter templates for Next.js.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className="mb-3 text-2xl font-semibold">
-            Deploy{" "}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className="m-0 max-w-[30ch] text-balance text-sm opacity-50">
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+      <div>
+        {/* <h2>HTML Output:</h2>
+        <div dangerouslySetInnerHTML={{ __html: serialize(value) }} /> */}
+        <div>{serialize(value)}</div>
       </div>
-    </main>
+    </Slate>
   );
-}
+};
+
+export default SlateEditor;
