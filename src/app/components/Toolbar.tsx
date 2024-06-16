@@ -5,7 +5,7 @@ import Icon from "./Icon";
 import useTable from "../utils/useTable";
 import defaultToolbarGroups from "../utils/toolbarGroups";
 import "./styles.css";
-import { ToolbarGroup, ToolbarElement } from "../type/custon-types";
+import { ToolbarGroup, ToolbarElement } from "../type/custom-types";
 import {
   toggleBlock,
   toggleMark,
@@ -14,6 +14,7 @@ import {
   isBlockActive,
   activeMark,
 } from "../utils/SlateUtilityFunction";
+import ColorPopover from "./ColorPopover";
 
 type MarkFormat =
   | "bold"
@@ -43,18 +44,6 @@ const Toolbar: React.FC = () => {
   const isTable = useTable(editor);
   const [toolbarGroups, setToolbarGroups] =
     useState<ToolbarGroup[]>(defaultToolbarGroups);
-
-  useEffect(() => {
-    let filteredGroups = [...defaultToolbarGroups];
-    if (isTable) {
-      filteredGroups = toolbarGroups.map((grp) =>
-        grp.filter((element) => element.type !== "block")
-      );
-      filteredGroups = filteredGroups.filter((elem) => elem.length);
-    }
-    setToolbarGroups(filteredGroups);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isTable]);
 
   const BlockButton: React.FC<{ format: BlockFormat }> = ({ format }) => (
     <Button
@@ -88,7 +77,10 @@ const Toolbar: React.FC = () => {
   }> = ({ format, options }) => (
     <select
       value={activeMark(editor, format)}
-      onChange={(e) => changeMarkData(e, format)}
+      onChange={(e) => {
+        console.log("e", e);
+        changeMarkData(e, format);
+      }}
     >
       {options.map((item, index) => (
         <option key={index} value={item.value}>
@@ -98,14 +90,56 @@ const Toolbar: React.FC = () => {
     </select>
   );
 
+  const Popover: React.FC<{
+    format: MarkFormat;
+    options: { value: string; text: string }[];
+  }> = ({ format, options }) => {
+    const [showPopover, setShowPopover] = useState(false);
+    const handleColorSelect = (color: string) => {
+      console.log("color", color);
+      addMarkData(editor, { format, value: color });
+      setShowPopover(false);
+    };
+    return (
+      <div className="relative">
+        <button
+          className="p-2 bg-gray-200 rounded"
+          onClick={() => setShowPopover(!showPopover)}
+        >
+          {activeMark(editor, format) || "Select"}
+        </button>
+        {showPopover &&
+          (console.log("options", options),
+          (
+            <ColorPopover
+              colors={options}
+              onSelect={handleColorSelect}
+              onClose={() => setShowPopover(false)}
+            />
+          ))}
+      </div>
+    );
+  };
+
   const changeMarkData = (
-    event: React.ChangeEvent<HTMLSelectElement>,
+    event: React.ChangeEvent<HTMLSelectElement> | string,
     format: MarkFormat
   ) => {
-    event.preventDefault();
-    const value = event.target.value;
+    const value = typeof event === "string" ? event : event.target.value;
+    console.log(value);
     addMarkData(editor, { format, value });
   };
+
+  useEffect(() => {
+    let filteredGroups = [...defaultToolbarGroups];
+    if (isTable) {
+      filteredGroups = toolbarGroups.map((grp) =>
+        grp.filter((element) => element.type !== "block")
+      );
+      filteredGroups = filteredGroups.filter((elem) => elem.length);
+    }
+    setToolbarGroups(filteredGroups);
+  }, [isTable]);
 
   return (
     <div className="toolbar">
@@ -116,6 +150,16 @@ const Toolbar: React.FC = () => {
               case "dropdown":
                 return (
                   <Dropdown
+                    key={element.id}
+                    format={element.format as MarkFormat}
+                    options={
+                      element.options as { value: string; text: string }[]
+                    }
+                  />
+                );
+              case "popover":
+                return (
+                  <Popover
                     key={element.id}
                     format={element.format as MarkFormat}
                     options={

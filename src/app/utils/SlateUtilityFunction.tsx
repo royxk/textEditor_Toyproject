@@ -6,7 +6,7 @@ import {
   Descendant,
 } from "slate";
 import { ReactEditor } from "slate-react";
-import { CustomElement, CustomText } from "../type/custon-types"; // Import your custom types
+import { CustomElement, CustomText } from "../type/custom-types"; // Import your custom types
 
 type MarkFormat =
   | "bold"
@@ -106,6 +106,7 @@ export const toggleBlock = (editor: CustomEditor, format: BlockFormat) => {
 
 export const addMarkData = (editor: CustomEditor, data: MarkData) => {
   Editor.addMark(editor, data.format, data.value);
+  ReactEditor.focus(editor);
 };
 
 export const toggleMark = (editor: CustomEditor, format: MarkFormat) => {
@@ -147,7 +148,7 @@ interface DefaultMarkData {
 const defaultMarkData: DefaultMarkData = {
   color: "black",
   bgColor: "black",
-  fontSize: "normal",
+  fontSize: "small",
   fontFamily: "sans",
 };
 

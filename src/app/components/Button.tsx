@@ -1,26 +1,23 @@
-import { title } from "process";
-import React, { ButtonHTMLAttributes, DetailedHTMLProps, FC } from "react";
+import React, { DetailedHTMLProps, HTMLAttributes, FC } from "react";
 
 interface ButtonProps
-  extends DetailedHTMLProps<
-    ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  > {
+  extends DetailedHTMLProps<HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
   format: string;
   active: boolean;
 }
 
 const Button: FC<ButtonProps> = (props) => {
-  const { children, format, active, ...rest } = props;
+  const { children, format, active, color, ...rest } = props;
   return (
-    <button
-      className={active ? "btnActive" : "lol"}
+    <div
+      className={`${
+        active ? "bg-blue-500 rounded-xl" : "bg-red-500"
+      } text-white px-3 py-1 m-1 cursor-pointer`}
       title={format}
       {...rest}
-      style={{ width: "30px", height: "20px", margin: "0 2px" }}
     >
       {children}
-    </button>
+    </div>
   );
 };
 

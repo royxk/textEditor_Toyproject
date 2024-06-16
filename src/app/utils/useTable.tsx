@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Editor, Element, Node } from "slate";
-import { CustomElement } from "../type/custon-types";
+import { CustomElement } from "../type/custom-types";
 
 const useTable = (editor: Editor): boolean => {
   const [isTable, setIsTable] = useState(false);

@@ -1,5 +1,6 @@
 // toolbarGroups.ts
-import { ToolbarGroup } from "../type/custon-types";
+import { ToolbarGroup } from "../type/custom-types";
+import black from "../assets/black.svg";
 
 const toolbarGroups: ToolbarGroup[] = [
   [
@@ -8,10 +9,10 @@ const toolbarGroups: ToolbarGroup[] = [
       format: "fontSize",
       type: "dropdown",
       options: [
-        { text: "Small", value: "small" },
-        { text: "Normal", value: "normal" },
-        { text: "Medium", value: "medium" },
-        { text: "Huge", value: "huge" },
+        { text: "본문", value: "16px" },
+        { text: "제목 1", value: "150px" },
+        { text: "제목 2", value: "120px" },
+        { text: "제목 3", value: "100px" },
       ],
     },
   ],
@@ -19,13 +20,19 @@ const toolbarGroups: ToolbarGroup[] = [
     {
       id: 2,
       format: "color",
-      type: "color-picker",
+      type: "dropdown",
+      options: [
+        { text: "검정", value: "black", image: black },
+        { text: "빨강", value: "red" },
+        { text: "파랑", value: "blue" },
+        { text: "회색", value: "gray" },
+      ],
     },
-    {
-      id: 3,
-      format: "bgColor",
-      type: "color-picker",
-    },
+    // {
+    //   id: 3,
+    //   format: "bgColor",
+    //   type: "color-picker",
+    // },
   ],
   [
     {
@@ -67,6 +74,19 @@ const toolbarGroups: ToolbarGroup[] = [
       id: 10,
       format: "image",
       type: "embed",
+    },
+  ],
+  [
+    {
+      id: 11,
+      format: "color",
+      type: "popover",
+      options: [
+        { text: "검정", value: "black" },
+        { text: "빨강", value: "red" },
+        { text: "파랑", value: "blue" },
+        { text: "회색", value: "gray" },
+      ],
     },
   ],
 ];

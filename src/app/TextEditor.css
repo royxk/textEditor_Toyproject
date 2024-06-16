@@ -1,0 +1,51 @@
+/* Explicit styles for bold and italic */
+strong,
+b {
+  font-weight: bold;
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+/* Dark mode styles */
+body.dark-mode .text-editor-toolbar {
+  background: #3c3c3c;
+  box-shadow: -8px 8px 13px #1e1e1e, 8px -8px 13px #4a4a4a;
+}
+
+body.dark-mode .text-editor-select {
+  background-color: #4a4a4a;
+  color: #fff;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 100px;
+}
+
+.editor-wrapper {
+  min-height: 100px;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1000px;
+}
+
+.input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #ccc;
+  outline: none;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.input::placeholder {
+  color: #aaa;
+  font-style: italic;
+  font-family: "Courier New", Courier, monospace; /* Example of a fancy font */
+}
