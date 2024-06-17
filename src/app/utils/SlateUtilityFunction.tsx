@@ -105,6 +105,7 @@ export const toggleBlock = (editor: CustomEditor, format: BlockFormat) => {
 };
 
 export const addMarkData = (editor: CustomEditor, data: MarkData) => {
+  console.log("Adding mark data:", data);
   Editor.addMark(editor, data.format, data.value);
   ReactEditor.focus(editor);
 };

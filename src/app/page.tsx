@@ -66,9 +66,7 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
   if (leaf.bold) {
     children = <strong>{children}</strong>;
   }
-  // if (leaf.code) {
-  //   children = <code>{children}</code>;
-  // }
+
   if (leaf.italic) {
     children = <em>{children}</em>;
   }
@@ -87,15 +85,11 @@ const Leaf: React.FC<RenderLeafProps> = ({ attributes, children, leaf }) => {
     children = <sub>{children}</sub>;
   }
   if (leaf.color) {
+    console.log(leaf.color);
     children = <span style={{ color: leaf.color }}>{children}</span>;
   }
-  // if (leaf.bgColor) {
-  //   children = (
-  //     <span style={{ backgroundColor: leaf.bgColor }}>{children}</span>
-  //   );
-  // }
+
   if (leaf.fontSize) {
-    // const size = sizeMap[leaf.fontSize];
     children = <span style={{ fontSize: leaf.fontSize }}>{children}</span>;
   }
   return <span {...attributes}>{children}</span>;

@@ -28,11 +28,17 @@ const toolbarGroups: ToolbarGroup[] = [
         { text: "회색", value: "gray" },
       ],
     },
-    // {
-    //   id: 3,
-    //   format: "bgColor",
-    //   type: "color-picker",
-    // },
+    {
+      id: 11,
+      format: "color",
+      type: "popover",
+      options: [
+        { text: "검정", value: "black" },
+        { text: "빨강", value: "red" },
+        { text: "파랑", value: "blue" },
+        { text: "회색", value: "gray" },
+      ],
+    },
   ],
   [
     {
@@ -74,19 +80,6 @@ const toolbarGroups: ToolbarGroup[] = [
       id: 10,
       format: "image",
       type: "embed",
-    },
-  ],
-  [
-    {
-      id: 11,
-      format: "color",
-      type: "popover",
-      options: [
-        { text: "검정", value: "black" },
-        { text: "빨강", value: "red" },
-        { text: "파랑", value: "blue" },
-        { text: "회색", value: "gray" },
-      ],
     },
   ],
 ];

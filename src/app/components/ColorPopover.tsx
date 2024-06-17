@@ -27,6 +27,7 @@ const ColorPopover: React.FC<ColorPopoverProps> = ({
           className="p-2 cursor-pointer hover:bg-gray-100"
           style={{ backgroundColor: color.value }}
           onClick={() => {
+            console.log("color", color.value);
             onSelect(color.value);
             onClose();
           }}

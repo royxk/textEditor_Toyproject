@@ -97,7 +97,7 @@ const Toolbar: React.FC = () => {
     const [showPopover, setShowPopover] = useState(false);
     const handleColorSelect = (color: string) => {
       console.log("color", color);
-      addMarkData(editor, { format, value: color });
+      changeMarkData(color, format);
       setShowPopover(false);
     };
     return (
@@ -108,15 +108,13 @@ const Toolbar: React.FC = () => {
         >
           {activeMark(editor, format) || "Select"}
         </button>
-        {showPopover &&
-          (console.log("options", options),
-          (
-            <ColorPopover
-              colors={options}
-              onSelect={handleColorSelect}
-              onClose={() => setShowPopover(false)}
-            />
-          ))}
+        {showPopover && (
+          <ColorPopover
+            colors={options}
+            onSelect={handleColorSelect}
+            onClose={() => setShowPopover(false)}
+          />
+        )}
       </div>
     );
   };
